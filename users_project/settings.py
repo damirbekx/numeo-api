@@ -126,11 +126,14 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
-# Add Railway frontend URL if exists
-if os.environ.get('CORS_ALLOWED_ORIGINS'):
-    CORS_ALLOWED_ORIGINS += os.environ.get('CORS_ALLOWED_ORIGINS').split(',')
+# CORS settings
+CORS_ALLOW_ALL_ORIGINS = True # Set to True to allow all origins (for development/testing)
+
+# Alternatively, if you want to be specific:
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:5173",
+#     "http://127.0.0.1:5173",
+# ]
+# if os.environ.get('CORS_ALLOWED_ORIGINS'):
+#     CORS_ALLOWED_ORIGINS += os.environ.get('CORS_ALLOWED_ORIGINS').split(',')
 

@@ -11,15 +11,22 @@ class Command(BaseCommand):
         parser.add_argument('--batch-size', type=int, default=10000, help='Batch size for bulk create.')
 
     def handle(self, *args, **options):
-        num_users = options['num_users']
+        target_total = options['num_users']
         batch_size = options['batch_size']
+
+        current_count = User.objects.count()
+        if current_count >= target_total:
+            self.stdout.write(self.style.SUCCESS(f'Database already has {current_count} users. Skipping seeding.'))
+            return
+
+        users_needed = target_total - current_count
         fake = Faker()
 
-        self.stdout.write(self.style.SUCCESS(f'Starting to seed {num_users} users in batches of {batch_size}...'))
+        self.stdout.write(self.style.SUCCESS(f'Current count: {current_count}. Seeding {users_needed} more users in batches of {batch_size}...'))
 
         total_created = 0
-        while total_created < num_users:
-            current_batch_count = min(batch_size, num_users - total_created)
+        while total_created < users_needed:
+            current_batch_count = min(batch_size, users_needed - total_created)
             users_to_create = []
 
             for _ in range(current_batch_count):
@@ -46,6 +53,6 @@ class Command(BaseCommand):
 
             User.objects.bulk_create(users_to_create, ignore_conflicts=True)
             total_created += current_batch_count
-            self.stdout.write(f'Created {total_created}/{num_users} users...')
+            self.stdout.write(f'Created {total_created}/{users_needed} users (Total: {current_count + total_created})...')
 
-        self.stdout.write(self.style.SUCCESS(f'Successfully seeded {total_created} users.'))
+        self.stdout.write(self.style.SUCCESS(f'Successfully seeded. Final count: {User.objects.count()}'))
